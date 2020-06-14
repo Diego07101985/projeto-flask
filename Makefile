@@ -1,9 +1,9 @@
 
 
 install:
-	- virtualenv -p python3 ../build/flask-infravideos
+	- virtualenv -p python3 ../flask-infravideos/build
 	- ( \
-       . bin/activate; \
+       . build/bin/activate; \
         pip3 install -r requirements.txt; \
     )
 run:

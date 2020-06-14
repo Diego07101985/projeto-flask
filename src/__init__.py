@@ -1,12 +1,15 @@
 # -*- coding: utf-8 -*-
-import os
+
 import json
 import datetime
+
+from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy import create_engine
+
+from flask import Flask
 from bson.objectid import ObjectId
-from flask_pymongo import PyMongo
-from flask import Flask, jsonify
-from pymongo import MongoClient
 from logging.config import dictConfig
+from sqlalchemy.orm import sessionmaker
 
 
 app = Flask(__name__)
@@ -26,6 +29,8 @@ dictConfig({
         'handlers': ['wsgi']
     }
 })
+
+
 class JSONEncoder(json.JSONEncoder):
     ''' extend json-encoder class'''
 
@@ -38,7 +43,13 @@ class JSONEncoder(json.JSONEncoder):
 
 
 app.debug = True
-client = MongoClient('mongodb://localhost:27017/')
-collection = client['test-database']
-from sre import controllers
+# client = MongoClient('mongodb://localhost:27017/')
+# db = client['test']
 
+db = create_engine('sqlite:///desafio.db', echo=True)
+Session = sessionmaker(bind=db)
+Base = declarative_base()
+
+
+
+from src import controllers
