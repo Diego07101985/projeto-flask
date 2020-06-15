@@ -46,10 +46,27 @@ app.debug = True
 # client = MongoClient('mongodb://localhost:27017/')
 # db = client['test']
 
-db = create_engine('sqlite:///desafio.db', echo=True)
-Session = sessionmaker(bind=db)
+# db = create_engine('sqlite:///desafio.db', echo=True)
+# Session = sessionmaker(bind=db)
+# Base = declarative_base()
+
+
+class DataAccessLayer:
+    def __init__(self, conn_string):
+        self.engine = None
+        self.session = None
+        self.conn_string = conn_string
+        self.Base = None
+
+    def connect(self):
+        self.engine = create_engine(self.conn_string)
+        self.Session = sessionmaker(bind=self.engine)
+        # self.session = self.Session()
+        self.Base.metadata.create_all(self.engine)
+
+
+dal = DataAccessLayer('sqlite:///desafio.db')
 Base = declarative_base()
-
-
+dal.Base = Base
 
 from src import controllers
