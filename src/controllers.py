@@ -3,7 +3,7 @@ import json
 from flask import request, jsonify
 from typing import Union, Dict
 # from src import app, dao, JSONEncoder
-from src import app, db, Base
+from src import app, dal
 from src.models import User
 from src.services.service_email import ServiceEmail
 
@@ -11,7 +11,8 @@ from src.repositorys import RepositoryUsers
 
 
 RELOAD_COMMAND = ' sudo /usr/sbin/nginx -s reload '
-Base.metadata.create_all(db)
+
+dal.connect()
 
 
 @app.route('/reload_nginx', methods=['POST'], strict_slashes=False)
@@ -70,14 +71,15 @@ def healthcheck():
 @app.route("/insert", methods=['GET'], strict_slashes=False)
 def insert_user():
     user = User(username="Paulo", email="paulo@alyson")
-    users = RepositoryUsers()
+    users = RepositoryUsers(dal)
     users.insert(user)
     return json.dumps({'success': True}), 201, {'ContentType': 'application/json'}
 
 
 @app.route("/user", methods=['GET'], strict_slashes=False)
 def get_users():
-    users = RepositoryUsers().get_user()
+    print(dal.session)
+    users = RepositoryUsers(dal).get_user()
     users: Dict[str, Union[str, str]] = {user.username: {
         'nome': user.username, 'email': user.email} for user in users}
 

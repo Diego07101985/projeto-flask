@@ -1,15 +1,15 @@
 from src.models import User
-from src import Session
 
 
 class RepositoryUsers:
-    def __init__(self):
-        self.session = Session()
+    def __init__(self, dal):
+        self.dal = dal
+        self.dal.session = dal.Session()
 
     def get_user(self):
-        return self.session.query(User).all()
+        return self.dal.session.query(User).all()
 
     def insert(self, user) -> int:
-        self.session.add(user)
-        id = self.session.commit()
+        self.dal.Session.add(user)
+        id = self.dal.session.commit()
         return id

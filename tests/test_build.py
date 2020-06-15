@@ -1,8 +1,13 @@
 
 import unittest
-import src.model 
+from src import dal
 
 
-class TestBuild(unittest.TestCase):
-    def setUp(self):
-        dal.db_init('sqlite:///:memory:')
+class TestApp(unittest.TestCase):
+
+    @classmethod
+    def setUpClass(cls):
+        dal.con_string = 'sqlite:///:memory'
+        dal.connect()
+
+  
