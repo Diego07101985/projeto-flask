@@ -10,6 +10,7 @@ from flask import Flask
 from bson.objectid import ObjectId
 from logging.config import dictConfig
 from sqlalchemy.orm import sessionmaker
+from contextlib import contextmanager
 
 
 app = Flask(__name__)
@@ -60,7 +61,7 @@ class DataAccessLayer:
 
     def connect(self):
         self.engine = create_engine(self.conn_string)
-        self.Session = sessionmaker(bind=self.engine)
+        self.Session = sessionmaker(bind=self.engine, expire_on_commit=False)
         # self.session = self.Session()
         self.Base.metadata.create_all(self.engine)
 
@@ -68,5 +69,20 @@ class DataAccessLayer:
 dal = DataAccessLayer('sqlite:///desafio.db')
 Base = declarative_base()
 dal.Base = Base
+dal.connect()
 
-from src import controllers
+
+@contextmanager
+def session_scope():
+    """Provide a transactional scope around a series of operations."""
+    session = dal.Session()
+    try:
+        print('Abri a sessão')
+        yield session
+        session.commit()
+    except:
+        session.rollback()
+        raise
+    finally:
+        print('Fechei a sessão')
+        session.close()
