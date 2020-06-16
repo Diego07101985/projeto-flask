@@ -12,8 +12,6 @@ from src.repositorys import RepositoryUsers
 
 RELOAD_COMMAND = ' sudo /usr/sbin/nginx -s reload '
 
-dal.connect()
-
 
 @app.route('/reload_nginx', methods=['POST'], strict_slashes=False)
 def reload_nginx_in_vm():
