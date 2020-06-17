@@ -1,7 +1,7 @@
-from src.models import User
+from desafio.src.models import User
 from desafio import session_scope
 
-from src.models import User
+from desafio.src.models import User
 from desafio import session_scope
 from sqlalchemy import inspect
 
@@ -16,6 +16,7 @@ class RepositoryUsers:
 
     def get_user(self, user):
         with session_scope() as session:
+            print(session)
             user = session.query(User).filter(
                 User.username == user.username).first()
         return user
@@ -46,5 +47,4 @@ class RepositoryUsers:
             session.delete(user)
             update_user = session.query(User).filter(
                 User.username == user.username).first()
-
         return update_user

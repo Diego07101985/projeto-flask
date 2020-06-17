@@ -1,1 +1,1 @@
-from desafio.src import app
+from desafio import app

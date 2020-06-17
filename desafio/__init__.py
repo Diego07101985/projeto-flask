@@ -1,19 +1,68 @@
 # -*- coding: utf-8 -*-
-
 import json
 import datetime
-
-from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy import create_engine
+import os
 
 from flask import Flask
 from bson.objectid import ObjectId
 from logging.config import dictConfig
-from sqlalchemy.orm import sessionmaker
 from contextlib import contextmanager
+from flask_sqlalchemy import SQLAlchemy
+from flask_script import Manager
+from flask_migrate import Migrate, MigrateCommand
 
 
-app = Flask(__name__)
+__version__ = (1, 0, 0, "dev")
+
+db = SQLAlchemy()
+migrate = Migrate()
+
+
+def init_db():
+    db.drop_all()
+    db.create_all()
+
+
+def create_app(test_config=None):
+    """Create and configure an instance of the Flask application."""
+    app = Flask(__name__, instance_relative_config=True)
+
+    # some deploy systems set the database url in the environ
+    db_url = os.environ.get("DATABASE_URL")
+
+    if db_url is None:
+        # default to a sqlite database in the instance folder
+        db_path = os.path.join(app.instance_path, "flaskr.sqlite")
+        db_url = f"sqlite:///{db_path}"
+        # ensure the instance folder exists
+        os.makedirs(app.instance_path, exist_ok=True)
+
+    app.config.from_mapping(
+        # default secret that should be overridden in environ or config
+        SECRET_KEY=os.environ.get("SECRET_KEY", "dev"),
+        SQLALCHEMY_DATABASE_URI=db_url,
+        SQLALCHEMY_TRACK_MODIFICATIONS=False,
+    )
+
+    if test_config is None:
+        # load the instance config, if it exists, when not testing
+        app.config.from_pyfile("config.py", silent=True)
+    else:
+        # load the test config if passed in
+        app.config.update(test_config)
+
+    # initialize Flask-SQLAlchemy and the init-db command
+    db.init_app(app)
+    migrate.init_app(app, db)
+
+    return app
+
+
+app = create_app()
+migrate = Migrate(app, db)
+manager = Manager(app)
+manager.add_command('db', MigrateCommand)
+
 
 dictConfig({
     'version': 1,
@@ -52,38 +101,47 @@ app.debug = True
 # Base = declarative_base()
 
 
-class DataAccessLayer:
-    def __init__(self, conn_string):
-        self.engine = None
-        self.session = None
-        self.conn_string = conn_string
-        self.Base = None
+# class DataAccessLayer:
+#     def __init__(self, conn_string):
+#         self.engine = None
+#         self.session = None
+#         self.conn_string = conn_string
+#         self.Base = None
 
-    def connect(self):
-        self.engine = create_engine(self.conn_string)
-        self.Session = sessionmaker(bind=self.engine, expire_on_commit=False)
-        # self.session = self.Session()
-        self.Base.metadata.create_all(self.engine)
+#     def connect(self):
+#         self.engine = create_engine(self.conn_string)
+#         self.Session = sessionmaker(bind=self.engine, expire_on_commit=False)
+#         # self.session = self.Session()
+#         self.Base.metadata.create_all(self.engine)
 
-
-dal = DataAccessLayer('sqlite:///desafio.db')
-Base = declarative_base()
-dal.Base = Base
-dal.connect()
+# with app.app_context():
+#     init_db()
+#     user = User(username="julio", email='l@l')
+#     db.session.add_all(
+#         (
+#             user,
+#             User(username="paulo", email='p@p'),
+#         )
+#     )
+#     db.session.commit()
 
 
 @contextmanager
 def session_scope():
     """Provide a transactional scope around a series of operations."""
-    session = dal.Session()
+    session = db.session()
     print(session)
     try:
         yield session
         print(f'Sessão foi iniciada {session}')
-        session.commit()
+        db.session.commit()
     except:
-        session.rollback()
+        db.session.rollback()
         raise
     finally:
-        session.close()
+        db.session.close()
         print(f'Sessão foi Finalizada {session}')
+
+
+from desafio.src.models import db
+from desafio.src import controllers
