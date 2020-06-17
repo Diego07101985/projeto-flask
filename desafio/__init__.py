@@ -76,13 +76,14 @@ dal.connect()
 def session_scope():
     """Provide a transactional scope around a series of operations."""
     session = dal.Session()
+    print(session)
     try:
-        print('Abri a sessão')
         yield session
+        print(f'Sessão foi iniciada {session}')
         session.commit()
     except:
         session.rollback()
         raise
     finally:
-        print('Fechei a sessão')
         session.close()
+        print(f'Sessão foi Finalizada {session}')
