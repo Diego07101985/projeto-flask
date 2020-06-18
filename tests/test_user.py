@@ -1,3 +1,5 @@
+# from src import dal
+
 
 try:
     import sys
@@ -7,7 +9,7 @@ try:
         os.path.abspath(
             os.path.join(
                 os.path.dirname(__file__),
-                '../../desafio'
+                '../desafio'
             )
         )
     )
@@ -15,37 +17,33 @@ except:
     raise
 
 
-# from src import dal
-
-from desafio import dal
-from src.repositorys import RepositoryUsers
-from src.models import User
+from desafio.repositorys import RepositoryUsers
+from desafio.models import User
 from sqlalchemy.exc import IntegrityError
 import unittest
 from unittest.mock import patch
-from desafio import session_scope
+import pytest
+
 # from test_build import TestApp
 
 
+@pytest.mark.usefixtures("app", "client", "runner")
 class TestRepositoryUser(unittest.TestCase):
 
     def setUp(self):
-        self.dal = dal
-        self.dal.conn_string = 'sqlite:///:memory'
-        self.dal.connect()
         self.users = RepositoryUsers()
         self.user = User(username="lans", email="j@j")
+
+    @patch('desafio.session_scope')
+    def test_2_deve_retornar_integrity_error(self, mock_tmp):
+        with self.assertRaises(IntegrityError):
+            self.users.insert(self.user)
 
     @patch('desafio.session_scope')
     def test_1_deve_retornar_id_usuario_depois_add(self, mock_tmp):
         id_user = self.users.insert(self.user)
         self.assertIsInstance(id_user, int)
         self.assertEqual(id_user, 1)
-
-    @patch('desafio.session_scope')
-    def test_2_deve_retornar_integrity_error(self, mock_tmp):
-        with self.assertRaises(IntegrityError):
-            self.users.insert(self.user)
 
     @patch('desafio.session_scope')
     def test_3_obtem_um_usuario(self, mock_tmp):
@@ -60,7 +58,3 @@ class TestRepositoryUser(unittest.TestCase):
     @patch('desafio.session_scope')
     def test_5_deve_deletar_um_usuario(self, mock_tmp):
         self.assertIsNone(self.users.delete(self.user))
-
-
-if __name__ == '__main__':
-    unittest.main(verbosity=2)

@@ -7,3 +7,4 @@ flask_sqlalchemy==2.4.3
 sqlalchemy
 Flask-Migrate
 Flask-Script
+pytest-mock

@@ -3,10 +3,10 @@ import json
 from flask import request, jsonify
 from typing import Union, Dict
 from desafio import app
-from desafio.src.models import User
-from desafio.src.services import ServiceEmail
+from desafio.models import User
+from desafio.services import ServiceEmail
 
-from desafio.src.repositorys import RepositoryUsers
+from desafio.repositorys import RepositoryUsers
 
 
 RELOAD_COMMAND = ' sudo /usr/sbin/nginx -s reload '
