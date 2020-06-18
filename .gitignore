@@ -16,3 +16,5 @@ build/
 .Python
 .python-version
 .mypy_cache
+migrations/
+instance

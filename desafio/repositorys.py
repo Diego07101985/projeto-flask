@@ -1,7 +1,7 @@
-from desafio.src.models import User
+from desafio.models import User
 from desafio import session_scope
 
-from desafio.src.models import User
+from desafio.models import User
 from desafio import session_scope
 from sqlalchemy import inspect
 

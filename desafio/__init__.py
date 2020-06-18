@@ -4,6 +4,8 @@ import datetime
 import os
 
 from flask import Flask
+import click
+from flask.cli import with_appcontext
 from bson.objectid import ObjectId
 from logging.config import dictConfig
 from contextlib import contextmanager
@@ -22,6 +24,12 @@ def init_db():
     db.drop_all()
     db.create_all()
 
+@click.command("init-db")
+@with_appcontext
+def init_db_command():
+    """Clear existing data and create new tables."""
+    init_db()
+    click.echo("Initialized the database.")
 
 def create_app(test_config=None):
     """Create and configure an instance of the Flask application."""
@@ -32,7 +40,7 @@ def create_app(test_config=None):
 
     if db_url is None:
         # default to a sqlite database in the instance folder
-        db_path = os.path.join(app.instance_path, "flaskr.sqlite")
+        db_path = os.path.join(app.instance_path, "desafio.sqlite")
         db_url = f"sqlite:///{db_path}"
         # ensure the instance folder exists
         os.makedirs(app.instance_path, exist_ok=True)
@@ -52,6 +60,8 @@ def create_app(test_config=None):
         app.config.update(test_config)
 
     # initialize Flask-SQLAlchemy and the init-db command
+    app.cli.add_command(init_db_command)
+
     db.init_app(app)
     migrate.init_app(app, db)
 
@@ -127,10 +137,10 @@ app.debug = True
 
 
 @contextmanager
-def session_scope():
+def session_scope(expire=False):
     """Provide a transactional scope around a series of operations."""
     session = db.session()
-    print(session)
+    session.expire_on_commit = False
     try:
         yield session
         print(f'Sessão foi iniciada {session}')
@@ -143,5 +153,6 @@ def session_scope():
         print(f'Sessão foi Finalizada {session}')
 
 
-from desafio.src.models import db
-from desafio.src import controllers
+
+
+from desafio import controllers

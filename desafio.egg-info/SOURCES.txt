@@ -1,0 +1,13 @@
+README.md
+setup.cfg
+setup.py
+desafio/__init__.py
+desafio/controllers.py
+desafio/models.py
+desafio/repositorys.py
+desafio/services.py
+desafio.egg-info/PKG-INFO
+desafio.egg-info/SOURCES.txt
+desafio.egg-info/dependency_links.txt
+desafio.egg-info/requires.txt
+desafio.egg-info/top_level.txt
