@@ -2,13 +2,11 @@ from desafio import create_app
 
 
 def test_config():
-    """Test create_app without passing test config."""
     assert not create_app().testing
     assert create_app({"TESTING": True}).testing
 
 
 def test_db_url_environ(monkeypatch):
-    """Test DATABASE_URL environment variable."""
     monkeypatch.setenv("DATABASE_URL", "sqlite:///environ")
     app = create_app()
     assert app.config["SQLALCHEMY_DATABASE_URI"] == "sqlite:///environ"
