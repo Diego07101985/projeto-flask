@@ -73,6 +73,28 @@ def insert_user():
     return json.dumps({'success': True}), 201, {'ContentType': 'application/json'}
 
 
+@app.route('/user/<int:userid>')
+@app.route('/user/<slug>')
+def get_user(userid=None, slug=None):
+    users = RepositoryUsers()
+    if userid:
+        user = User(id=userid)
+        user = users.get_user_by_id(user)
+    else:
+        user = User(username=slug.title())
+        user = users.get_user_by_name(user)
+
+    if not user:
+        return json.dumps({}), 204, {'ContentType': 'application/json'}
+
+    return json.dumps({user.username: {
+        "username": user.username,
+        "email": user.email
+
+    }
+    }), 200, {'ContentType': 'application/json'}
+
+
 @app.route("/user", methods=['GET'], strict_slashes=False)
 def get_users():
     user = User(username="Paulo", email="paulo@alyson")

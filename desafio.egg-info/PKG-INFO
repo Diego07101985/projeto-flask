@@ -1,12 +1,14 @@
 Metadata-Version: 2.1
 Name: desafio
 Version: 1.0.0.dev0
-Summary: A basic blog app built with Flask-SQLAlchemy.
-Home-page: https://flask-sqlalchemy.palletsprojects.com/
-Author: Pallets
-Author-email: contact@palletsprojects.com
-License: BSD-3-Clause
-Description: UNKNOWN
+Summary: App Basico flask SQLAlchemy
+Home-page: UNKNOWN
+Author: Diego Silva de Salles
+Author-email: disalles7@gmail.com
+License: UNKNOWN
+Description: # MonitGeoip
+        
+        
 Platform: UNKNOWN
 Requires-Python: >=3.6
 Provides-Extra: test
