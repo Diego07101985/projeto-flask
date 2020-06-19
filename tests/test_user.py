@@ -32,7 +32,7 @@ class TestRepositoryUser(unittest.TestCase):
 
     def setUp(self):
         self.users = RepositoryUsers()
-        self.user = User(username="lans", email="j@j")
+        self.user = User(id=1, username="lans", email="j@j")
 
     @patch('desafio.session_scope')
     def test_2_deve_retornar_integrity_error(self, mock_tmp):
@@ -46,8 +46,16 @@ class TestRepositoryUser(unittest.TestCase):
         self.assertEqual(id_user, 1)
 
     @patch('desafio.session_scope')
-    def test_3_obtem_um_usuario(self, mock_tmp):
-        self.assertTrue(self.users.get_user(self.user) == self.user)
+    def test_3_deve_obter_um_usuario_by_id(self, mock_tmp):
+        user = self.users.get_user_by_id(self.user)
+        self.assertIsInstance(user.id, int)
+        self.assertTrue(user == self.user)
+
+    @patch('desafio.session_scope')
+    def test_3_deve_obter_um_usuario_by_name(self, mock_tmp):
+        user = self.users.get_user_by_name(self.user)
+        self.assertIsInstance(user.username, str)
+        self.assertTrue(user == self.user)
 
     @patch('desafio.session_scope')
     def test_4_deve_alterar_o_email_do_usuario(self, mock_tmp):

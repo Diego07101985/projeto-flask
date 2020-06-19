@@ -14,11 +14,16 @@ class RepositoryUsers:
         with session_scope() as session:
             return session.query(User).all()
 
-    def get_user(self, user):
+    def get_user_by_name(self, user):
         with session_scope() as session:
-            print(session)
             user = session.query(User).filter(
                 User.username == user.username).first()
+        return user
+
+    def get_user_by_id(self, user):
+        with session_scope() as session:
+            user = session.query(User).filter(
+                User.id == user.id).first()
         return user
 
     def insert(self, user):
