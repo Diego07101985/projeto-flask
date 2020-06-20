@@ -95,6 +95,24 @@ def get_user(userid=None, slug=None):
     }), 200, {'ContentType': 'application/json'}
 
 
+@app.route('/user', methods=['PUT'])
+def update_user():
+    users = RepositoryUsers()
+    # jsonContent = {'Content-Type': 'application/json'}
+    if request.method == "POST":
+        content = request.get_json()
+    else:
+        return json.dumps({
+            'success': "Error"})
+
+    user = User()
+
+    if user.username(content['email']):
+        user.email = user.username(content['email'])
+
+    users.update(User(username=content['username']))
+
+
 @app.route("/user", methods=['GET'], strict_slashes=False)
 def get_users():
     user = User(username="Paulo", email="paulo@alyson")
