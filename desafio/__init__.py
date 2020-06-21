@@ -31,6 +31,7 @@ def init_db_command():
     init_db()
     click.echo("Initialized the database.")
 
+
 def create_app(test_config=None):
     """Create and configure an instance of the Flask application."""
     app = Flask(__name__, instance_relative_config=True)
@@ -151,8 +152,6 @@ def session_scope(expire=False):
     finally:
         db.session.close()
         print(f'Sessão foi Finalizada {session}')
-
-
 
 
 from desafio import controllers
