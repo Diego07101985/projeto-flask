@@ -99,18 +99,30 @@ def get_user(userid=None, slug=None):
 def update_user():
     users = RepositoryUsers()
     # jsonContent = {'Content-Type': 'application/json'}
-    if request.method == "POST":
+    if request.method == "PUT":
         content = request.get_json()
     else:
         return json.dumps({
             'success': "Error"})
 
     user = User()
-
-    if user.username(content['email']):
-        user.email = user.username(content['email'])
-
-    users.update(User(username=content['username']))
+    user.username = content['username']
+    if users.get_user_by_name(user):
+        if content['email']:
+            user.email = content['email']
+            user.username = content['username']
+            users.update(user)
+            return json.dumps({user.username: {
+                "username": user.username,
+                "email": user.email}
+            }), 200, {'ContentType': 'application/json'}
+        else:
+            return json.dumps({'message':
+                               'Nem email foi enviado para alteracao'}), 204,
+            {'ContentType': 'application/json'}
+    else:
+        return json.dumps({'message': 'Nao existe esse usuario'}), 204,
+        {'ContentType': 'application/json'}
 
 
 @app.route("/user", methods=['GET'], strict_slashes=False)
