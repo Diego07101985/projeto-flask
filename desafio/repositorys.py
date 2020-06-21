@@ -17,7 +17,7 @@ class RepositoryUsers:
     def get_user_by_name(self, user):
         with session_scope() as session:
             user = session.query(User).filter(
-                User.username() == user.username()).first()
+                User.username == user.username).first()
         return user
 
     def get_user_by_id(self, user):
@@ -30,7 +30,8 @@ class RepositoryUsers:
         with session_scope() as session:
             session.add(user)
             user = session.query(User).filter(
-                User.username() == user.username()).first()
+                User.username == user.username).first()
+            print('Insert', user)
             return user.id
 
     def update(self, user):
@@ -38,18 +39,17 @@ class RepositoryUsers:
             print(user)
             print(f' Nome usuario: {user.username}')
             session.query(User).filter(
-                User.username() == user.username()). \
-                update({"email": user.email})
+                User.username == user.username).update({"email": user.email})
 
             update_user = session.query(User).filter(
-                User.username() == user.username()).first()
+                User.username == user.username).first()
         return update_user
 
     def delete(self, user):
         with session_scope() as session:
             user = session.query(User).filter(
-                User.username() == user.username()).first()
+                User.username == user.username).first()
             session.delete(user)
             update_user = session.query(User).filter(
-                User.username() == user.username()).first()
+                User.username == user.username).first()
         return update_user
