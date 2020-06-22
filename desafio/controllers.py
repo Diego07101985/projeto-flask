@@ -10,6 +10,7 @@ from desafio.repositorys import RepositoryUsers
 
 
 RELOAD_COMMAND = ' sudo /usr/sbin/nginx -s reload '
+JSON_CONTENT = {'Content-Type': 'application/json'}
 
 
 @app.route('/reload_nginx', methods=['POST'], strict_slashes=False)
@@ -65,12 +66,27 @@ def healthcheck():
 #     return json.dumps(vms, cls=JSONEncoder), 200, {'Content-Type': 'application/json'}
 
 
-@app.route("/insert", methods=['GET'], strict_slashes=False)
+@app.route("/user", methods=['POST'], strict_slashes=False)
 def insert_user():
-    user = User(username="Paulo", email="paulo@alyson")
     users = RepositoryUsers()
+    # jsonContent = {'Content-Type': 'application/json'}
+    content = request.get_json()
+
+    user = User()
+    user.username = content['username']
+    users = RepositoryUsers()
+
+    if users.get_user_by_name(user):
+        return json.dumps({'message': "O usuario ja existe"}), 409,
+        JSON_CONTENT
+
+    user.email = content['email']
+    user.username = content['username']
     users.insert(user)
-    return json.dumps({'success': True}), 201, {'ContentType': 'application/json'}
+    return json.dumps({user.username: {
+        "username": user.username,
+        "email": user.email}
+    }), 200, JSON_CONTENT
 
 
 @app.route('/user/<int:userid>')
@@ -85,32 +101,41 @@ def get_user(userid=None, slug=None):
         user = users.get_user_by_name(user)
 
     if not user:
-        return json.dumps({}), 204, {'ContentType': 'application/json'}
+        return json.dumps({}), 204, JSON_CONTENT
 
     return json.dumps({user.username: {
         "username": user.username,
         "email": user.email
 
     }
-    }), 200, {'ContentType': 'application/json'}
+    }), 200, JSON_CONTENT
 
 
 @app.route('/user', methods=['PUT'])
 def update_user():
     users = RepositoryUsers()
     # jsonContent = {'Content-Type': 'application/json'}
-    if request.method == "POST":
-        content = request.get_json()
-    else:
-        return json.dumps({
-            'success': "Error"})
+    content = request.get_json()
 
     user = User()
-
-    if user.username(content['email']):
-        user.email = user.username(content['email'])
-
-    users.update(User(username=content['username']))
+    user.username = content['username']
+    if users.get_user_by_name(user):
+        if content['email']:
+            user.email = content['email']
+            user.username = content['username']
+            users.update(user)
+            return json.dumps({user.username: {
+                "username": user.username,
+                "email": user.email}
+            }), 200, JSON_CONTENT
+        else:
+            return json.dumps({'message':
+                               'Nenhum  email foi enviado para alteracao'}),
+            400,
+            JSON_CONTENT
+    else:
+        return json.dumps({'message': 'Nao existe esse usuario'}), 204,
+        JSON_CONTENT
 
 
 @app.route("/user", methods=['GET'], strict_slashes=False)
@@ -120,4 +145,4 @@ def get_users():
     users: Dict[str, Union[str, str]] = {user.username: {
         'nome': user.username, 'email': user.email} for user in users}
 
-    return json.dumps(users), 200, {'ContentType': 'application/json'}
+    return json.dumps(users), 200, JSON_CONTENT
