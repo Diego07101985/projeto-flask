@@ -60,10 +60,24 @@ def healthcheck():
     return jsonify({'status': 'online'})
 
 
-# @app.route("/list_vm_status", methods=['GET'], strict_slashes=False)
-# def get_vm_status():
-#     vms = list(db.monitor.find({}))
-#     return json.dumps(vms, cls=JSONEncoder), 200, {'Content-Type': 'application/json'}
+@app.route('/user/delete/<int:userid>')
+@app.route('/user/delete/<slug>')
+def delete_user(userid=None, slug=None, methods=["DELETE"],
+                strict_slashes=False):
+    users = RepositoryUsers()
+    if userid:
+        user = User(id=userid)
+    else:
+        user = User(username=slug.title())
+
+    if users.get_user_by_name(user):
+        users.delete(user)
+        return json.dumps({'message': f'O usuario {user.username} +'
+                           + 'foi removido com sucesso'}), 200,
+        JSON_CONTENT
+
+    return json.dumps({'message': 'Nao existe esse usuario'}), 204,
+    JSON_CONTENT
 
 
 @app.route("/user", methods=['POST'], strict_slashes=False)
@@ -91,7 +105,7 @@ def insert_user():
 
 @app.route('/user/<int:userid>')
 @app.route('/user/<slug>')
-def get_user(userid=None, slug=None):
+def get_user(userid=None, slug=None, methods="GET"):
     users = RepositoryUsers()
     if userid:
         user = User(id=userid)
@@ -133,9 +147,9 @@ def update_user():
                                'Nenhum  email foi enviado para alteracao'}),
             400,
             JSON_CONTENT
-    else:
-        return json.dumps({'message': 'Nao existe esse usuario'}), 204,
-        JSON_CONTENT
+
+    return json.dumps({'message': 'Nao existe esse usuario'}), 204,
+    JSON_CONTENT
 
 
 @app.route("/user", methods=['GET'], strict_slashes=False)
