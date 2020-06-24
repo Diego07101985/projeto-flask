@@ -111,10 +111,12 @@ def get_user(userid=None, slug=None):
         user = User(id=userid)
         user = users.get_user_by_id(user)
     else:
-        user = User(username=slug.title())
+        user = User()
+        user.username = slug.title()
         user = users.get_user_by_name(user)
 
     if not user:
+        app.logger.info('User %s', user)
         return json.dumps({}), 204, JSON_CONTENT
 
     return json.dumps({user.username: {
@@ -125,7 +127,7 @@ def get_user(userid=None, slug=None):
     }), 200, JSON_CONTENT
 
 
-@app.route('/user', methods=['PATCH'])
+@app.route('/user', methods=['PUT'])
 def update_user():
     users = RepositoryUsers()
     # jsonContent = {'Content-Type': 'application/json'}
@@ -137,7 +139,8 @@ def update_user():
         if content['email']:
             user.email = content['email']
             user.username = content['username']
-            users.update(user)
+            user = users.update(user)
+            app.logger.info('%s Update User', user.username)
             return json.dumps({user.username: {
                 "username": user.username,
                 "email": user.email}

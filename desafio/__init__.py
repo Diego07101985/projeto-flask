@@ -3,6 +3,10 @@ import json
 import datetime
 import os
 
+from flask.logging import default_handler
+import logging
+
+
 from flask import Flask
 import click
 from flask.cli import with_appcontext
@@ -23,6 +27,7 @@ migrate = Migrate()
 def init_db():
     db.drop_all()
     db.create_all()
+
 
 @click.command("init-db")
 @with_appcontext
@@ -91,6 +96,12 @@ dictConfig({
     }
 })
 
+for logger in (
+    app.logger,
+    logging.getLogger('sqlalchemy'),
+):
+    logger.addHandler(default_handler)
+
 
 class JSONEncoder(json.JSONEncoder):
     ''' extend json-encoder class'''
@@ -144,14 +155,14 @@ def session_scope(expire=False):
     session.expire_on_commit = False
     try:
         yield session
-        print(f'Sessão foi iniciada {session}')
+
+        app.logger.info(f'Sessão foi iniciada {session}')
         db.session.commit()
     except:
         db.session.rollback()
         raise
     finally:
         db.session.close()
-        print(f'Sessão foi Finalizada {session}')
-
+        app.logger.info(f'Sessão foi iniciada {session}')
 
 from desafio import controllers
