@@ -60,19 +60,19 @@ def healthcheck():
     return jsonify({'status': 'online'})
 
 
-@app.route('/user/delete/<int:userid>')
-@app.route('/user/delete/<slug>')
-def delete_user(userid=None, slug=None, methods=["DELETE"],
-                strict_slashes=False):
+@app.route('/user/<int:userid>', methods=['DELETE'])
+@app.route('/user/<slug>', methods=['DELETE'])
+def delete_user(userid=None, slug=None):
     users = RepositoryUsers()
     if userid:
         user = User(id=userid)
     else:
-        user = User(username=slug.title())
+        user = User()
+        user.username = slug.title()
 
     if users.get_user_by_name(user):
         users.delete(user)
-        return json.dumps({'message': f'O usuario {user.username} +'
+        return json.dumps({'message': f'O usuario {user.username} '
                            + 'foi removido com sucesso'}), 200,
         JSON_CONTENT
 
@@ -80,7 +80,7 @@ def delete_user(userid=None, slug=None, methods=["DELETE"],
     JSON_CONTENT
 
 
-@app.route("/user", methods=['POST'], strict_slashes=False)
+@app.route("/user", methods=['POST'])
 def insert_user():
     users = RepositoryUsers()
     # jsonContent = {'Content-Type': 'application/json'}
@@ -103,9 +103,9 @@ def insert_user():
     }), 200, JSON_CONTENT
 
 
-@app.route('/user/<int:userid>')
-@app.route('/user/<slug>')
-def get_user(userid=None, slug=None, methods="GET"):
+@app.route('/user/<int:userid>', methods=["GET"])
+@app.route('/user/<slug>', methods=["GET"])
+def get_user(userid=None, slug=None):
     users = RepositoryUsers()
     if userid:
         user = User(id=userid)
@@ -125,7 +125,7 @@ def get_user(userid=None, slug=None, methods="GET"):
     }), 200, JSON_CONTENT
 
 
-@app.route('/user', methods=['PUT'])
+@app.route('/user', methods=['PATCH'])
 def update_user():
     users = RepositoryUsers()
     # jsonContent = {'Content-Type': 'application/json'}
@@ -152,7 +152,7 @@ def update_user():
     JSON_CONTENT
 
 
-@app.route("/user", methods=['GET'], strict_slashes=False)
+@app.route("/user", methods=['GET'])
 def get_users():
     user = User(username="Paulo", email="paulo@alyson")
     users = RepositoryUsers().get_user(user)
