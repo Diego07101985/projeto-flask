@@ -1,0 +1,54 @@
+version: "3"
+
+services:
+  web:
+    build:
+      dockerfile: Dockerfile
+      context: app
+    # command: python3 manage.py runserver 0.0.0.0:8000
+    container_name: desafio-flask
+    volumes:
+      - .:/code
+    ports:
+      - "5000:5000"
+    restart: unless-stoped
+    tty: true
+    networks:
+      - redis-net
+    depends_on:
+      - redis
+  redis:
+    image: redis:4.0.6-alpine
+    hostname: redis
+    networks:
+      - redis-net
+    volumes:
+      - redis-data:/data
+  webserver:
+    build:
+      context: nginx
+      dockerfile: Dockerfile
+    image: nginx
+    container_name: webserver
+    restart: unless-stopped
+    environment:
+      APP_ENV: "prod"
+      APP_NAME: "webserver"
+      APP_DEBUG: "false"
+      SERVICE_NAME: "webserver"
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - nginxdata:/var/log/nginx
+    depends_on:
+      - flask
+    networks:
+      - frontend
+
+networks:
+  redis-net:
+
+volumes:
+  redis-data:
+    driver: local
