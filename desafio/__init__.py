@@ -166,3 +166,6 @@ def session_scope(expire=False):
         app.logger.info(f'Sessão foi iniciada {session}')
 
 from desafio import controllers
+
+if __name__ == "__main__":
+    app.run(host="0.0.0.0", port=5000)
