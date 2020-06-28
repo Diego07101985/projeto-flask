@@ -16,9 +16,20 @@ from contextlib import contextmanager
 from flask_sqlalchemy import SQLAlchemy
 from flask_script import Manager
 from flask_migrate import Migrate, MigrateCommand
+from flask_caching import Cache
 
 
 __version__ = (1, 0, 0, "dev")
+
+
+config = {
+    "DEBUG": True,          # some Flask specific configs
+    "CACHE_TYPE": "redis",  # Flask-Caching related configs
+    "CACHE_DEFAULT_TIMEOUT": 300,
+    "CACHE_REDIS_HOST": "127.0.0.1",
+    "CACHE_REDIS_PORT": 6379,
+}
+
 
 db = SQLAlchemy()
 migrate = Migrate()
@@ -75,6 +86,10 @@ def create_app(test_config=None):
 
 
 app = create_app()
+
+app.config.from_mapping(config)
+cache = Cache(app)
+
 migrate = Migrate(app, db)
 manager = Manager(app)
 manager.add_command('db', MigrateCommand)
@@ -165,7 +180,9 @@ def session_scope(expire=False):
         db.session.close()
         app.logger.info(f'Sessão foi iniciada {session}')
 
-from desafio import controllers
 
-if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=5000)
+# if __name__ == "__main__":
+#     app.run(host="0.0.0.0", port=5000)
+
+
+from desafio import controllers

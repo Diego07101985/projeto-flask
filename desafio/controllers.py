@@ -2,7 +2,7 @@ import json
 
 from flask import request, jsonify
 from typing import Union, Dict
-from desafio import app
+from desafio import app, cache
 from desafio.models import User
 from desafio.services import ServiceEmail
 
@@ -155,10 +155,10 @@ def update_user():
     JSON_CONTENT
 
 
-@app.route("/user", methods=['GET'])
+@app.route("/users", methods=['GET'])
+@cache.cached(timeout=50, key_prefix='all_comments')
 def get_users():
-    user = User(username="Paulo", email="paulo@alyson")
-    users = RepositoryUsers().get_user(user)
+    users = RepositoryUsers().get_all_user()
     users: Dict[str, Union[str, str]] = {user.username: {
         'nome': user.username, 'email': user.email} for user in users}
 
